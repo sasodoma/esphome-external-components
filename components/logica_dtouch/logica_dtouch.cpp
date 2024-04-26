@@ -13,7 +13,7 @@ static const size_t DTOUCH_HEADER_LENGTH = 4;
 static const uint8_t DTOUCH_HEADER[] = { 0x01, 0x80, 0x00, 0x00 };
 
 // The CRC used is CRC-16/MODBUS, sent low byte first
-uint16_t dtouch_crc(uint8_t *bytes, size_t len, bool restart) {
+uint16_t dtouch_crc(const uint8_t *bytes, size_t len, bool restart) {
     static uint16_t crc = 0xFFFF;
     uint8_t i, j;
 
@@ -83,7 +83,7 @@ bool LOGICA_dTouch::dtouch_send_command_data_(const uint8_t command, const uint8
   this->write_array(DTOUCH_HEADER, DTOUCH_HEADER_LENGTH);
   dtouch_crc(DTOUCH_HEADER, DTOUCH_HEADER_LENGTH, true);
   uint16_t payload_length = data_len + 1;
-  uint8_t length_cmd[] = {payload_length >> 8, payload_length & 0xFF, command};
+  uint8_t length_cmd[] = {((uint16_t) payload_length & 0xFF00) >> 8, (uint8_t) payload_length, command};
   this->write_array(length_cmd, 3);
   dtouch_crc(length_cmd, 3, false);
   if (data != nullptr) {
@@ -91,7 +91,7 @@ bool LOGICA_dTouch::dtouch_send_command_data_(const uint8_t command, const uint8
     dtouch_crc(data, data_len, false);
   }
   uint16_t crc = dtouch_crc(nullptr, 0, false);
-  uint8_t crc_bytes = {crc & 0xFF, crc >> 8};
+  uint8_t crc_bytes[] = {crc & 0xFF, crc >> 8};
   this->write_array(crc_bytes, 2);
   this->flush();
 
