@@ -37,6 +37,15 @@ uint16_t dtouch_crc(const uint8_t *bytes, size_t len, bool restart) {
 
 void LOGICA_dTouch::setup() {}
 
+void LOGICA_dTouch::loop() {
+  static unsigned long time = millis();
+
+  if (millis() - time > 1000) {
+    ESP_LOGD(TAG, "Test");
+    time = millis();
+  }
+}
+
 void LOGICA_dTouch::update() {
 
   uint8_t response[DTOUCH_S_RESPONSE_LENGTH];
