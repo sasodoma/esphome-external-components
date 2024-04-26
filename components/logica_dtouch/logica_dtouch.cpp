@@ -104,7 +104,7 @@ size_t LOGICA_dTouch::dtouch_receive_packet_(uint8_t *response, const size_t res
 
   static unsigned long last_read = 0;
 
-  while (!this->available()) {
+  while (this->available()) {
     last_read = millis();
     uint8_t data = this->read();
     if (current_index == 0 && data != this->address_)
