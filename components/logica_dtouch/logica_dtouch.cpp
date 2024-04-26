@@ -74,7 +74,7 @@ void LOGICA_dTouch::update() {
 }
 
 void LOGICA_dTouch::dtouch_send_command_(const uint8_t command) {
-  dtouch_send_command_data_(command, nullptr, 0, response, response_len);
+  dtouch_send_command_data_(command, nullptr, 0);
 }
 
 void LOGICA_dTouch::dtouch_send_command_data_(const uint8_t command, const uint8_t *data, const size_t data_len) {
