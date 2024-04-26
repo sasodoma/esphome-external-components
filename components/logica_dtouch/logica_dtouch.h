@@ -21,8 +21,8 @@ class LOGICA_dTouch : public PollingComponent, public uart::UARTDevice {
   void set_address(uint32_t address) { address_ = address; }
 
  protected:
-  bool logica_send_command_(const uint8_t command, uint8_t *response, const size_t response_len);
-  bool logica_send_command_data_(const uint8_t command, const uint8_t *data, const size_t data_len, uint8_t *response, const size_t response_len);
+  bool dtouch_send_command_(const uint8_t command, uint8_t *response, const size_t response_len);
+  bool dtouch_send_command_data_(const uint8_t command, const uint8_t *data, const size_t data_len, uint8_t *response, const size_t response_len);
 
   sensor::Sensor *temperature_sensor_{nullptr};
   sensor::Sensor *emc_sensor_{nullptr};

@@ -57,9 +57,9 @@ void LOGICA_dTouch::update() {
   }
 
   this->status_clear_warning();
-  const float temp = ((response[DTOUCH_S_RESPONSE_TEMP_OFFSET] << 8) | response[DTOUCH_S_RESPONSE_TEMP_OFFSET+1]) / 10.0f
-  const float emc = ((response[DTOUCH_S_RESPONSE_EMC_OFFSET] << 8) | response[DTOUCH_S_RESPONSE_EMC_OFFSET+1]) / 10.0f
-  const float mc = ((response[DTOUCH_S_RESPONSE_MC_OFFSET] << 8) | response[DTOUCH_S_RESPONSE_MC_OFFSET+1]) / 10.0f
+  const float temp = ((response[DTOUCH_S_RESPONSE_TEMP_OFFSET] << 8) | response[DTOUCH_S_RESPONSE_TEMP_OFFSET+1]) / 10.0f;
+  const float emc = ((response[DTOUCH_S_RESPONSE_EMC_OFFSET] << 8) | response[DTOUCH_S_RESPONSE_EMC_OFFSET+1]) / 10.0f;
+  const float mc = ((response[DTOUCH_S_RESPONSE_MC_OFFSET] << 8) | response[DTOUCH_S_RESPONSE_MC_OFFSET+1]) / 10.0f;
 
 
   ESP_LOGD(TAG, "dTouch Received Temperature=%f°C, EMC=%f%%, MC=%f%%", temp, emc, mc);
