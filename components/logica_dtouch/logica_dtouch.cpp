@@ -70,7 +70,7 @@ void LOGICA_dTouch::loop() {
 }
 
 void LOGICA_dTouch::update() {
-  dtouch_send_command_('S', response, DTOUCH_S_RESPONSE_LENGTH);
+  dtouch_send_command_('S');
 }
 
 void LOGICA_dTouch::dtouch_send_command_(const uint8_t command) {
@@ -116,7 +116,7 @@ size_t LOGICA_dTouch::dtouch_receive_packet_(uint8_t *response, const size_t res
     if (current_index == 4)
       packet_length = data << 8;
     if (current_index == 5) {
-      packet_length += data + 8
+      packet_length += data + 8;
       if (packet_length > response_len) {
         ESP_LOGW(TAG, "Packet too long for array!");
         current_index = 0;
