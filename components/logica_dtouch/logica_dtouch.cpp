@@ -51,12 +51,11 @@ void LOGICA_dTouch::update() {
   }
 
   uint16_t checksum = dtouch_crc(response, DTOUCH_S_RESPONSE_LENGTH - 2, true);
-  if (response[DTOUCH_S_RESPONSE_LENGTH - 2] != checksum & 0xFF || response[DTOUCH_S_RESPONSE_LENGTH - 1] != checksum >> 8) {
-    ESP_LOGW(TAG, "dTouch checksum doesn't match: 0x%02X%02X!=0x%04X", response[DTOUCH_S_RESPONSE_LENGTH - 2], response[DTOUCH_S_RESPONSE_LENGTH - 1], checksum);
+  if (response[DTOUCH_S_RESPONSE_LENGTH - 2] != (uint8_t) checksum || response[DTOUCH_S_RESPONSE_LENGTH - 1] != (uint8_t) (checksum >> 8)) {
+    ESP_LOGW(TAG, "dTouch checksum doesn't match: 0x%02X%02X!=0x%04X", response[DTOUCH_S_RESPONSE_LENGTH - 1], response[DTOUCH_S_RESPONSE_LENGTH - 2], checksum);
     return;
   }
 
-  this->status_clear_warning();
   const float temp = ((response[DTOUCH_S_RESPONSE_TEMP_OFFSET] << 8) | response[DTOUCH_S_RESPONSE_TEMP_OFFSET+1]) / 10.0f;
   const float emc = ((response[DTOUCH_S_RESPONSE_EMC_OFFSET] << 8) | response[DTOUCH_S_RESPONSE_EMC_OFFSET+1]) / 10.0f;
   const float mc = ((response[DTOUCH_S_RESPONSE_MC_OFFSET] << 8) | response[DTOUCH_S_RESPONSE_MC_OFFSET+1]) / 10.0f;
@@ -83,7 +82,7 @@ bool LOGICA_dTouch::dtouch_send_command_data_(const uint8_t command, const uint8
   this->write_array(DTOUCH_HEADER, DTOUCH_HEADER_LENGTH);
   dtouch_crc(DTOUCH_HEADER, DTOUCH_HEADER_LENGTH, true);
   uint16_t payload_length = data_len + 1;
-  uint8_t length_cmd[] = {((uint16_t) payload_length & 0xFF00) >> 8, (uint8_t) payload_length, command};
+  uint8_t length_cmd[] = {(uint8_t) (payload_length >> 8), (uint8_t) payload_length, command};
   this->write_array(length_cmd, 3);
   dtouch_crc(length_cmd, 3, false);
   if (data != nullptr) {
@@ -91,7 +90,7 @@ bool LOGICA_dTouch::dtouch_send_command_data_(const uint8_t command, const uint8
     dtouch_crc(data, data_len, false);
   }
   uint16_t crc = dtouch_crc(nullptr, 0, false);
-  uint8_t crc_bytes[] = {crc & 0xFF, crc >> 8};
+  uint8_t crc_bytes[] = {(uint8_t) crc, uint8_t (crc >> 8)};
   this->write_array(crc_bytes, 2);
   this->flush();
 
