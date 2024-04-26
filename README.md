@@ -1,0 +1,1 @@
+A repository for developing my custom ESPHome components.
