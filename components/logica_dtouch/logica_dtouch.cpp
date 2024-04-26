@@ -47,6 +47,7 @@ void LOGICA_dTouch::loop() {
 
   if (received_length != DTOUCH_S_RESPONSE_LENGTH) {
     ESP_LOGW(TAG, "Received wrong packet length");
+    return;
   }
 
   uint16_t checksum = dtouch_crc(response, DTOUCH_S_RESPONSE_LENGTH - 2, true);
