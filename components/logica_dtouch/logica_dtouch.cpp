@@ -38,25 +38,15 @@ uint16_t dtouch_crc(const uint8_t *bytes, size_t len, bool restart) {
 void LOGICA_dTouch::setup() {}
 
 void LOGICA_dTouch::loop() {
-  static unsigned long time = millis();
+  static uint8_t response[DTOUCH_S_RESPONSE_LENGTH];
 
-  if (millis() - time > 1000) {
-    ESP_LOGD(TAG, "Test");
-    time = millis();
-  }
-}
+  size_t received_length = dtouch_receive_packet_(response, DTOUCH_S_RESPONSE_LENGTH);
 
-void LOGICA_dTouch::update() {
-
-  uint8_t response[DTOUCH_S_RESPONSE_LENGTH];
-  if (!this->dtouch_send_command_('S', response, DTOUCH_S_RESPONSE_LENGTH)) {
-    ESP_LOGW(TAG, "Reading data from dTouch failed!");
+  if (!received_length)
     return;
-  }
 
-  if (response[0] != this->address_ || response[1] != 0x80) {
-    ESP_LOGW(TAG, "Invalid header from dTouch!");
-    return;
+  if (received_length != DTOUCH_S_RESPONSE_LENGTH) {
+    ESP_LOGW(TAG, "Received wrong packet length");
   }
 
   uint16_t checksum = dtouch_crc(response, DTOUCH_S_RESPONSE_LENGTH - 2, true);
@@ -79,11 +69,15 @@ void LOGICA_dTouch::update() {
     this->mc_sensor_->publish_state(mc);
 }
 
-bool LOGICA_dTouch::dtouch_send_command_(const uint8_t command, uint8_t *response, const size_t response_len) {
-    return dtouch_send_command_data_(command, nullptr, 0, response, response_len);
+void LOGICA_dTouch::update() {
+  dtouch_send_command_('S', response, DTOUCH_S_RESPONSE_LENGTH);
 }
 
-bool LOGICA_dTouch::dtouch_send_command_data_(const uint8_t command, const uint8_t *data, const size_t data_len, uint8_t *response, const size_t response_len) {
+void LOGICA_dTouch::dtouch_send_command_(const uint8_t command) {
+  dtouch_send_command_data_(command, nullptr, 0, response, response_len);
+}
+
+void LOGICA_dTouch::dtouch_send_command_data_(const uint8_t command, const uint8_t *data, const size_t data_len) {
   // Empty RX Buffer
   while (this->available())
     this->read();
@@ -102,11 +96,49 @@ bool LOGICA_dTouch::dtouch_send_command_data_(const uint8_t command, const uint8
   uint8_t crc_bytes[] = {(uint8_t) crc, uint8_t (crc >> 8)};
   this->write_array(crc_bytes, 2);
   this->flush();
+}
 
-  if (response == nullptr)
-    return true;
+size_t LOGICA_dTouch::dtouch_receive_packet_(uint8_t *response, const size_t response_len) {
+  static size_t current_index = 0;
+  static size_t packet_length = 0;
 
-  return this->read_array(response, response_len);
+  static unsigned long last_read = 0;
+
+  while (!this->available()) {
+    last_read = millis();
+    uint8_t data = this->read();
+    if (current_index == 0 && data != this->address_)
+      continue;
+    if (current_index == 1 && data != 0x80) {
+      current_index = 0;
+      continue;
+    }
+    if (current_index == 4)
+      packet_length = data << 8;
+    if (current_index == 5) {
+      packet_length += data + 8
+      if (packet_length > response_len) {
+        ESP_LOGW(TAG, "Packet too long for array!");
+        current_index = 0;
+        continue;
+      }
+    }
+    if (current_index == response_len) {
+      current_index = 0;
+      continue;
+    }
+    response[current_index++] = data;
+    if (current_index == packet_length && current_index > 8) {
+      current_index = 0;
+      return packet_length;
+    }
+  }
+
+  if (millis() - last_read > 10) {
+    current_index = 0;
+    last_read = millis();
+  }
+  return 0;
 }
 
 float LOGICA_dTouch::get_setup_priority() const { return setup_priority::DATA; }
