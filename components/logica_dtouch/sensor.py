@@ -42,7 +42,7 @@ CONFIG_SCHEMA = (
                 device_class=DEVICE_CLASS_MOISTURE,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
-            cv.Optional(CONF_ADDRESS, default=1): cv.int_range(min=1, max=32),
+            cv.Optional(CONF_ADDRESS, default=1): cv.int_range(min=1, max=254),
         }
     )
     .extend(cv.polling_component_schema("5s"))
