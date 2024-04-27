@@ -74,10 +74,6 @@ void LOGICA_dTouch::update() {
   dtouch_send_command_('S');
 }
 
-void LOGICA_dTouch::dtouch_send_command_(const uint8_t command) {
-  dtouch_send_command_(command, nullptr, 0);
-}
-
 void LOGICA_dTouch::dtouch_send_command_(const uint8_t command, const uint8_t *data, const size_t data_len) {
   // Empty RX Buffer
   while (this->available())

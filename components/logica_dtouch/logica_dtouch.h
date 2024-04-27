@@ -22,7 +22,7 @@ class LOGICA_dTouch : public PollingComponent, public uart::UARTDevice {
   void set_address(uint32_t address) { address_ = address; }
 
  protected:
-  void dtouch_send_command_(const uint8_t command);
+  void dtouch_send_command_(const uint8_t command) { dtouch_send_command_(command, nullptr, 0); }
   void dtouch_send_command_(const uint8_t command, const uint8_t *data, const size_t data_len);
   size_t dtouch_receive_packet_(uint8_t *response, const size_t response_len);
 
