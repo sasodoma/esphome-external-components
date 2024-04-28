@@ -9,8 +9,8 @@ static const size_t DTOUCH_S_RESPONSE_LENGTH = 113;
 static const size_t DTOUCH_S_RESPONSE_TEMP_OFFSET = 77;
 static const size_t DTOUCH_S_RESPONSE_MC_OFFSET = 73;
 static const size_t DTOUCH_S_RESPONSE_EMC_OFFSET = 83;
-static const size_t DTOUCH_HEADER_LENGTH = 3;
-static const uint8_t DTOUCH_HEADER[] = { 0x80, 0x00, 0x00 };
+static const size_t DTOUCH_STATIC_HEADER_LENGTH = 3;
+static const uint8_t DTOUCH_STATIC_HEADER[] = { 0x80, 0x00, 0x00 };
 
 // The CRC used is CRC-16/MODBUS, sent low byte first
 uint16_t dtouch_crc(const uint8_t *bytes, size_t len, bool restart) {
@@ -81,8 +81,8 @@ void LOGICA_dTouch::dtouch_send_command_(const uint8_t command, const uint8_t *d
   
   this->write_byte(this->address_);
   dtouch_crc(&(this->address_), 1, true);
-  this->write_array(DTOUCH_HEADER, DTOUCH_HEADER_LENGTH);
-  dtouch_crc(DTOUCH_HEADER, DTOUCH_HEADER_LENGTH, false);
+  this->write_array(DTOUCH_STATIC_HEADER, DTOUCH_STATIC_HEADER_LENGTH);
+  dtouch_crc(DTOUCH_STATIC_HEADER, DTOUCH_STATIC_HEADER_LENGTH, false);
   uint16_t payload_length = data_len + 1;
   uint8_t length_cmd[] = {(uint8_t) (payload_length >> 8), (uint8_t) payload_length, command};
   this->write_array(length_cmd, 3);
