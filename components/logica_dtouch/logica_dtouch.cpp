@@ -13,12 +13,8 @@ static const size_t DTOUCH_STATIC_HEADER_LENGTH = 3;
 static const uint8_t DTOUCH_STATIC_HEADER[] = { 0x80, 0x00, 0x00 };
 
 // The CRC used is CRC-16/MODBUS, sent low byte first
-uint16_t dtouch_crc(const uint8_t *bytes, size_t len, bool restart) {
-    static uint16_t crc = 0xFFFF;
+uint16_t dtouch_crc(const uint8_t *bytes, size_t len, uint16_t crc) {
     uint8_t i, j;
-
-    if (restart)
-      crc = 0xFFFF;
 
     for (i = 0; i < len; i++) {
         crc ^= bytes[i];
@@ -34,6 +30,10 @@ uint16_t dtouch_crc(const uint8_t *bytes, size_t len, bool restart) {
 
     return crc;
 }
+uint16_t dtouch_crc(const uint8_t byte, uint16_t crc) { return dtouch_crc(&byte, 1, crc); }
+uint16_t dtouch_crc(const uint8_t *bytes, size_t len) { return dtouch_crc(bytes, len, 0xFFFF); }
+uint16_t dtouch_crc(const uint8_t bytes) { return dtouch_crc(&byte, 1, 0xFFFF); }
+
 
 void LOGICA_dTouch::setup() {}
 
@@ -50,7 +50,7 @@ void LOGICA_dTouch::loop() {
     return;
   }
 
-  uint16_t checksum = dtouch_crc(response, DTOUCH_S_RESPONSE_LENGTH - 2, true);
+  uint16_t checksum = dtouch_crc(response, DTOUCH_S_RESPONSE_LENGTH - 2);
   if (response[DTOUCH_S_RESPONSE_LENGTH - 2] != (uint8_t) checksum || response[DTOUCH_S_RESPONSE_LENGTH - 1] != (uint8_t) (checksum >> 8)) {
     ESP_LOGW(TAG, "dTouch checksum doesn't match: 0x%02X%02X!=0x%04X", response[DTOUCH_S_RESPONSE_LENGTH - 1], response[DTOUCH_S_RESPONSE_LENGTH - 2], checksum);
     return;
@@ -80,18 +80,18 @@ void LOGICA_dTouch::dtouch_send_command_(const uint8_t command, const uint8_t *d
     this->read();
   
   this->write_byte(this->address_);
-  dtouch_crc(&(this->address_), 1, true);
+  uint16_t crc = dtouch_crc(&(this->address_), 1);
   this->write_array(DTOUCH_STATIC_HEADER, DTOUCH_STATIC_HEADER_LENGTH);
-  dtouch_crc(DTOUCH_STATIC_HEADER, DTOUCH_STATIC_HEADER_LENGTH, false);
+  crc = dtouch_crc(DTOUCH_STATIC_HEADER, DTOUCH_STATIC_HEADER_LENGTH, crc);
   uint16_t payload_length = data_len + 1;
   uint8_t length_cmd[] = {(uint8_t) (payload_length >> 8), (uint8_t) payload_length, command};
   this->write_array(length_cmd, 3);
-  dtouch_crc(length_cmd, 3, false);
+  crc = dtouch_crc(length_cmd, 3, crc);
   if (data != nullptr) {
     this->write_array(data, data_len);
-    dtouch_crc(data, data_len, false);
+    crc = dtouch_crc(data, data_len, crc);
   }
-  uint16_t crc = dtouch_crc(nullptr, 0, false);
+  crc = dtouch_crc(nullptr, 0, crc);
   uint8_t crc_bytes[] = {(uint8_t) crc, uint8_t (crc >> 8)};
   this->write_array(crc_bytes, 2);
   this->flush();
