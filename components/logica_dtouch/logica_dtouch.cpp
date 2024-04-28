@@ -80,7 +80,7 @@ void LOGICA_dTouch::dtouch_send_command_(const uint8_t command, const uint8_t *d
     this->read();
   
   this->write_byte(this->address_);
-  uint16_t crc = dtouch_crc(&(this->address_), 1);
+  uint16_t crc = dtouch_crc(this->address_);
   this->write_array(DTOUCH_STATIC_HEADER, DTOUCH_STATIC_HEADER_LENGTH);
   crc = dtouch_crc(DTOUCH_STATIC_HEADER, DTOUCH_STATIC_HEADER_LENGTH, crc);
   uint16_t payload_length = data_len + 1;
