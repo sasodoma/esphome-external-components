@@ -5,10 +5,7 @@ namespace esphome {
 namespace logica_dtouch {
 
 static const char *const TAG = "logica_dtouch";
-static const size_t DTOUCH_S_RESPONSE_LENGTH = 113;
-static const size_t DTOUCH_S_RESPONSE_TEMP_OFFSET = 77;
-static const size_t DTOUCH_S_RESPONSE_MC_OFFSET = 73;
-static const size_t DTOUCH_S_RESPONSE_EMC_OFFSET = 83;
+static const size_t DTOUCH_MAX_RESPONSE_LENGTH = 128;
 static const size_t DTOUCH_STATIC_HEADER_LENGTH = 3;
 static const uint8_t DTOUCH_STATIC_HEADER[] = { 0x80, 0x00, 0x00 };
 
@@ -38,36 +35,31 @@ uint16_t dtouch_crc(const uint8_t byte) { return dtouch_crc(&byte, 1, 0xFFFF); }
 void LOGICA_dTouch::setup() {}
 
 void LOGICA_dTouch::loop() {
-  static uint8_t response[DTOUCH_S_RESPONSE_LENGTH];
+  static uint8_t response[DTOUCH_MAX_RESPONSE_LENGTH];
 
-  size_t received_length = this->dtouch_receive_packet_(response, DTOUCH_S_RESPONSE_LENGTH);
+  size_t received_length = this->dtouch_receive_packet_(response, DTOUCH_MAX_RESPONSE_LENGTH);
 
   if (!received_length)
     return;
 
-  if (received_length != DTOUCH_S_RESPONSE_LENGTH) {
-    ESP_LOGW(TAG, "Received wrong packet length");
+  if (millis() - last_sent_command_.time > 500) {
+    ESP_LOGW(TAG, "Received unsolicited packet");
     return;
   }
 
-  uint16_t checksum = dtouch_crc(response, DTOUCH_S_RESPONSE_LENGTH - 2);
-  if (response[DTOUCH_S_RESPONSE_LENGTH - 2] != (uint8_t) checksum || response[DTOUCH_S_RESPONSE_LENGTH - 1] != (uint8_t) (checksum >> 8)) {
-    ESP_LOGW(TAG, "dTouch checksum doesn't match: 0x%02X%02X!=0x%04X", response[DTOUCH_S_RESPONSE_LENGTH - 1], response[DTOUCH_S_RESPONSE_LENGTH - 2], checksum);
+  uint16_t checksum = dtouch_crc(response, received_length - 2);
+  if (response[received_length - 2] != (uint8_t) checksum || response[received_length - 1] != (uint8_t) (checksum >> 8)) {
+    ESP_LOGW(TAG, "dTouch checksum doesn't match: 0x%02X%02X!=0x%04X", response[received_length - 1], response[received_length - 2], checksum);
     return;
   }
 
-  const float temp = ((response[DTOUCH_S_RESPONSE_TEMP_OFFSET] << 8) | response[DTOUCH_S_RESPONSE_TEMP_OFFSET+1]) / 10.0f;
-  const float emc = ((response[DTOUCH_S_RESPONSE_EMC_OFFSET] << 8) | response[DTOUCH_S_RESPONSE_EMC_OFFSET+1]) / 10.0f;
-  const float mc = ((response[DTOUCH_S_RESPONSE_MC_OFFSET] << 8) | response[DTOUCH_S_RESPONSE_MC_OFFSET+1]) / 10.0f;
-
-
-  ESP_LOGD(TAG, "dTouch Received Temperature=%f°C, EMC=%f%%, MC=%f%%", temp, emc, mc);
-  if (this->temperature_sensor_ != nullptr)
-    this->temperature_sensor_->publish_state(temp);
-  if (this->emc_sensor_ != nullptr)
-    this->emc_sensor_->publish_state(emc);
-  if (this->mc_sensor_ != nullptr)
-    this->mc_sensor_->publish_state(mc);
+  switch (last_sent_command_.command) {
+    case 'S':
+      dtouch_parse_packet_S_(response, received_length);
+      break;
+    default:
+      break;
+  }
 }
 
 void LOGICA_dTouch::update() {
@@ -94,6 +86,10 @@ void LOGICA_dTouch::dtouch_send_command_(const uint8_t command, const uint8_t *d
   uint8_t crc_bytes[] = {(uint8_t) crc, uint8_t (crc >> 8)};
   this->write_array(crc_bytes, 2);
   this->flush();
+
+  this->last_sent_command_.command = command;
+  this->last_sent_command_.data = (data == nullptr) ? 0 : data[0];
+  this->last_sent_command_.time = millis();
 }
 
 size_t LOGICA_dTouch::dtouch_receive_packet_(uint8_t *response, const size_t response_len) {
@@ -138,6 +134,32 @@ size_t LOGICA_dTouch::dtouch_receive_packet_(uint8_t *response, const size_t res
   }
   return 0;
 }
+
+void LOGICA_dTouch::dtouch_parse_packet_S_(const uint8_t *data, const size_t len) {
+  static const size_t DTOUCH_S_RESPONSE_LENGTH = 113;
+  static const size_t DTOUCH_S_RESPONSE_TEMP_OFFSET = 77;
+  static const size_t DTOUCH_S_RESPONSE_MC_OFFSET = 73;
+  static const size_t DTOUCH_S_RESPONSE_EMC_OFFSET = 83;
+
+  if (len != DTOUCH_S_RESPONSE_LENGTH) {
+    ESP_LOGW(TAG, "Received wrong packet length");
+    return;
+  }
+
+  const float temp = ((data[DTOUCH_S_RESPONSE_TEMP_OFFSET] << 8) | data[DTOUCH_S_RESPONSE_TEMP_OFFSET+1]) / 10.0f;
+  const float emc = ((data[DTOUCH_S_RESPONSE_EMC_OFFSET] << 8) | data[DTOUCH_S_RESPONSE_EMC_OFFSET+1]) / 10.0f;
+  const float mc = ((data[DTOUCH_S_RESPONSE_MC_OFFSET] << 8) | data[DTOUCH_S_RESPONSE_MC_OFFSET+1]) / 10.0f;
+
+
+  ESP_LOGD(TAG, "dTouch Received Temperature=%f°C, EMC=%f%%, MC=%f%%", temp, emc, mc);
+  if (this->temperature_sensor_ != nullptr)
+    this->temperature_sensor_->publish_state(temp);
+  if (this->emc_sensor_ != nullptr)
+    this->emc_sensor_->publish_state(emc);
+  if (this->mc_sensor_ != nullptr)
+    this->mc_sensor_->publish_state(mc);
+}
+
 
 float LOGICA_dTouch::get_setup_priority() const { return setup_priority::DATA; }
 

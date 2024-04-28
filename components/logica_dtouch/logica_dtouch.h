@@ -26,10 +26,18 @@ class LOGICA_dTouch : public PollingComponent, public uart::UARTDevice {
   void dtouch_send_command_(const uint8_t command, const uint8_t *data, const size_t data_len);
   size_t dtouch_receive_packet_(uint8_t *response, const size_t response_len);
 
+  void dtouch_parse_packet_S_(const uint8_t *data, const size_t len);
+
   sensor::Sensor *temperature_sensor_{nullptr};
   sensor::Sensor *emc_sensor_{nullptr};
   sensor::Sensor *mc_sensor_{nullptr};
   uint8_t address_;
+
+  struct {
+    uint8_t command = 0;
+    uint8_t data = 0;
+    unsigned long time = 0;
+  } last_sent_command_;
 };
 
 }  // namespace logica_dtouch
