@@ -40,7 +40,7 @@ void LOGICA_dTouch::setup() {}
 void LOGICA_dTouch::loop() {
   static uint8_t response[DTOUCH_S_RESPONSE_LENGTH];
 
-  size_t received_length = dtouch_receive_packet_(response, DTOUCH_S_RESPONSE_LENGTH);
+  size_t received_length = this->dtouch_receive_packet_(response, DTOUCH_S_RESPONSE_LENGTH);
 
   if (!received_length)
     return;
@@ -71,7 +71,7 @@ void LOGICA_dTouch::loop() {
 }
 
 void LOGICA_dTouch::update() {
-  dtouch_send_command_('S');
+  this->dtouch_send_command_('S');
 }
 
 void LOGICA_dTouch::dtouch_send_command_(const uint8_t command, const uint8_t *data, const size_t data_len) {
