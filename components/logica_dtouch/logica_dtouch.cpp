@@ -32,7 +32,7 @@ uint16_t dtouch_crc(const uint8_t *bytes, size_t len, uint16_t crc) {
 }
 uint16_t dtouch_crc(const uint8_t byte, uint16_t crc) { return dtouch_crc(&byte, 1, crc); }
 uint16_t dtouch_crc(const uint8_t *bytes, size_t len) { return dtouch_crc(bytes, len, 0xFFFF); }
-uint16_t dtouch_crc(const uint8_t bytes) { return dtouch_crc(&byte, 1, 0xFFFF); }
+uint16_t dtouch_crc(const uint8_t byte) { return dtouch_crc(&byte, 1, 0xFFFF); }
 
 
 void LOGICA_dTouch::setup() {}
