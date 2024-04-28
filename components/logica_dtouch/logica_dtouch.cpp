@@ -91,7 +91,6 @@ void LOGICA_dTouch::dtouch_send_command_(const uint8_t command, const uint8_t *d
     this->write_array(data, data_len);
     crc = dtouch_crc(data, data_len, crc);
   }
-  crc = dtouch_crc(nullptr, 0, crc);
   uint8_t crc_bytes[] = {(uint8_t) crc, uint8_t (crc >> 8)};
   this->write_array(crc_bytes, 2);
   this->flush();
