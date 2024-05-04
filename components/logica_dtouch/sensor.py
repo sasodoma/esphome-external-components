@@ -58,7 +58,7 @@ async def to_code(config):
 
     for idx in range(0, config["num_probes"]):
         sens = await sensor.new_sensor({
-            "name": "temp" + str(idx)
+            CONF_ID: "temp" + str(idx)
         })
         cg.add(var.set_temperature_sensor(sens))
 
