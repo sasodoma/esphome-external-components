@@ -31,31 +31,25 @@ CONFIG_SCHEMA = (
                 accuracy_decimals=1,
                 device_class=DEVICE_CLASS_TEMPERATURE,
                 state_class=STATE_CLASS_MEASUREMENT,
-            ).extend(cv.Schema(
-                {
-                    cv.Required(CONF_NUM_PROBES): cv.int_range(min=1)
-                }
-            )),
+            ).extend(cv.Schema({
+                cv.Required(CONF_NUM_PROBES): cv.int_range(min=1)
+            })),
             cv.Optional(CONF_MOISTURE_CONTENT): sensor.sensor_schema(
                 unit_of_measurement=UNIT_PERCENT,
                 accuracy_decimals=1,
                 device_class=DEVICE_CLASS_MOISTURE,
                 state_class=STATE_CLASS_MEASUREMENT,
-            ).extend(cv.Schema(
-                {
-                    cv.Required(CONF_NUM_PROBES): cv.int_range(min=1)
-                }
-            )),
+            ).extend(cv.Schema({
+                cv.Required(CONF_NUM_PROBES): cv.int_range(min=1)
+            })),
             cv.Optional(CONF_EQUIVALENT_MOISTURE_CONTENT): sensor.sensor_schema(
                 unit_of_measurement=UNIT_PERCENT,
                 accuracy_decimals=1,
                 device_class=DEVICE_CLASS_MOISTURE,
                 state_class=STATE_CLASS_MEASUREMENT,
-            ).extend(cv.Schema(
-                {
-                    cv.Required(CONF_NUM_PROBES): cv.int_range(min=1)
-                }
-            )),
+            ).extend(cv.Schema({
+                cv.Required(CONF_NUM_PROBES): cv.int_range(min=1)
+            })),
             cv.Optional(CONF_ADDRESS, default=1): cv.int_range(min=1, max=254),
         }
     )
@@ -77,10 +71,10 @@ async def to_code(config):
         for idx in range(0, config[CONF_MOISTURE_CONTENT][CONF_NUM_PROBES]):
             custom_conf = config[CONF_MOISTURE_CONTENT].copy()
             custom_conf[CONF_ID] = ID(
-                    id=config[CONF_MOISTURE_CONTENT][CONF_ID].id + "_" + str(idx),
-                    is_declaration=config[CONF_MOISTURE_CONTENT][CONF_ID].is_declaration,
-                    is_manual=config[CONF_MOISTURE_CONTENT][CONF_ID].is_manual,
-                    type=config[CONF_MOISTURE_CONTENT][CONF_ID].type
+                id=config[CONF_MOISTURE_CONTENT][CONF_ID].id + "_" + str(idx),
+                is_declaration=config[CONF_MOISTURE_CONTENT][CONF_ID].is_declaration,
+                is_manual=config[CONF_MOISTURE_CONTENT][CONF_ID].is_manual,
+                type=config[CONF_MOISTURE_CONTENT][CONF_ID].type
             )
             custom_conf["name"] = config[CONF_MOISTURE_CONTENT]["name"] + "_" + str(idx)
             sens = await sensor.new_sensor(custom_conf)
@@ -92,10 +86,10 @@ async def to_code(config):
         for idx in range(0, config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_NUM_PROBES]):
             custom_conf = config[CONF_EQUIVALENT_MOISTURE_CONTENT].copy()
             custom_conf[CONF_ID] = ID(
-                    id=config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_ID].id + "_" + str(idx),
-                    is_declaration=config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_ID].is_declaration,
-                    is_manual=config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_ID].is_manual,
-                    type=config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_ID].type
+                id=config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_ID].id + "_" + str(idx),
+                is_declaration=config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_ID].is_declaration,
+                is_manual=config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_ID].is_manual,
+                type=config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_ID].type
             )
             custom_conf["name"] = config[CONF_EQUIVALENT_MOISTURE_CONTENT]["name"] + "_" + str(idx)
             sens = await sensor.new_sensor(custom_conf)
@@ -107,10 +101,10 @@ async def to_code(config):
         for idx in range(0, config[CONF_TEMPERATURE][CONF_NUM_PROBES]):
             custom_conf = config[CONF_TEMPERATURE].copy()
             custom_conf[CONF_ID] = ID(
-                    id=config[CONF_TEMPERATURE][CONF_ID].id + "_" + str(idx),
-                    is_declaration=config[CONF_TEMPERATURE][CONF_ID].is_declaration,
-                    is_manual=config[CONF_TEMPERATURE][CONF_ID].is_manual,
-                    type=config[CONF_TEMPERATURE][CONF_ID].type
+                id=config[CONF_TEMPERATURE][CONF_ID].id + "_" + str(idx),
+                is_declaration=config[CONF_TEMPERATURE][CONF_ID].is_declaration,
+                is_manual=config[CONF_TEMPERATURE][CONF_ID].is_manual,
+                type=config[CONF_TEMPERATURE][CONF_ID].type
             )
             custom_conf["name"] = config[CONF_TEMPERATURE]["name"] + "_" + str(idx)
             sens = await sensor.new_sensor(custom_conf)
