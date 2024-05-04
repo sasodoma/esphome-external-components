@@ -56,6 +56,15 @@ async def to_code(config):
     await cg.register_component(var, config)
     await uart.register_uart_device(var, config)
 
+    if CONF_MOISTURE_CONTENT in config:
+        sens = await sensor.new_sensor(config[CONF_MOISTURE_CONTENT])
+        cg.add(var.set_mc_sensor(sens))
+
+    if CONF_EQUIVALENT_MOISTURE_CONTENT in config:
+        print(config[CONF_EQUIVALENT_MOISTURE_CONTENT])
+        sens = await sensor.new_sensor(config[CONF_EQUIVALENT_MOISTURE_CONTENT])
+        cg.add(var.set_emc_sensor(sens))
+
     for idx in range(0, config["num_probes"]):
         sens = await sensor.new_sensor({
             CONF_ID: "temp" + str(idx)
