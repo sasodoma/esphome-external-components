@@ -30,18 +30,18 @@ CONFIG_SCHEMA = (
             #     device_class=DEVICE_CLASS_TEMPERATURE,
             #     state_class=STATE_CLASS_MEASUREMENT,
             # ),
-            # cv.Optional(CONF_MOISTURE_CONTENT): sensor.sensor_schema(
-            #     unit_of_measurement=UNIT_PERCENT,
-            #     accuracy_decimals=1,
-            #     device_class=DEVICE_CLASS_MOISTURE,
-            #     state_class=STATE_CLASS_MEASUREMENT,
-            # ),
-            # cv.Optional(CONF_EQUIVALENT_MOISTURE_CONTENT): sensor.sensor_schema(
-            #     unit_of_measurement=UNIT_PERCENT,
-            #     accuracy_decimals=1,
-            #     device_class=DEVICE_CLASS_MOISTURE,
-            #     state_class=STATE_CLASS_MEASUREMENT,
-            # ),
+            cv.Optional(CONF_MOISTURE_CONTENT): sensor.sensor_schema(
+                unit_of_measurement=UNIT_PERCENT,
+                accuracy_decimals=1,
+                device_class=DEVICE_CLASS_MOISTURE,
+                state_class=STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_EQUIVALENT_MOISTURE_CONTENT): sensor.sensor_schema(
+                unit_of_measurement=UNIT_PERCENT,
+                accuracy_decimals=1,
+                device_class=DEVICE_CLASS_MOISTURE,
+                state_class=STATE_CLASS_MEASUREMENT,
+            ),
             cv.Optional("num_probes", default=0): cv.int,
             cv.Optional(CONF_ADDRESS, default=1): cv.int_range(min=1, max=254),
         }
