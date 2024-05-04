@@ -42,7 +42,7 @@ CONFIG_SCHEMA = (
                 device_class=DEVICE_CLASS_MOISTURE,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
-            cv.Optional("num_probes", default=0): cv.int,
+            cv.Optional("num_probes", default=0): cv.int_,
             cv.Optional(CONF_ADDRESS, default=1): cv.int_range(min=1, max=254),
         }
     )
