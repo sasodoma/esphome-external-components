@@ -64,6 +64,8 @@ async def to_code(config):
         cg.add(var.set_mc_sensor(sens))
 
     if CONF_EQUIVALENT_MOISTURE_CONTENT in config:
+        print(type(config[CONF_EQUIVALENT_MOISTURE_CONTENT]))
+        print(type(config[CONF_EQUIVALENT_MOISTURE_CONTENT]['state_class']))
         print(config[CONF_EQUIVALENT_MOISTURE_CONTENT]['state_class'])
         sens = await sensor.new_sensor(config[CONF_EQUIVALENT_MOISTURE_CONTENT])
         cg.add(var.set_emc_sensor(sens))
