@@ -66,12 +66,12 @@ async def to_code(config):
     if CONF_EQUIVALENT_MOISTURE_CONTENT in config:
         print(type(config[CONF_EQUIVALENT_MOISTURE_CONTENT]))
         print(type(config[CONF_EQUIVALENT_MOISTURE_CONTENT]['state_class']))
-        print(config[CONF_EQUIVALENT_MOISTURE_CONTENT]['state_class'])
+        print(config[CONF_EQUIVALENT_MOISTURE_CONTENT])
         sens = await sensor.new_sensor(config[CONF_EQUIVALENT_MOISTURE_CONTENT])
         cg.add(var.set_emc_sensor(sens))
 
     for idx in range(0, config["num_probes"]):
-        sens = await sensor.new_sensor({
+        custom_conf = {
             CONF_ID: ID(id="temp" + str(idx), is_declaration=True, is_manual=True, type=type_sensor),
             'name': "temp" + str(idx),
             'disabled_by_default': False,
@@ -79,8 +79,11 @@ async def to_code(config):
             'unit_of_measurement': '°C',
             'accuracy_decimals': 1,
             'device_class': 'temperature',
-            'state_class': 'measurement'
-        })
+            'state_class': config[CONF_EQUIVALENT_MOISTURE_CONTENT]['state_class']
+        }
+        print(custom_conf)
+        print(type(custom_conf['state_class']))
+        sens = await sensor.new_sensor(custom_conf)
         cg.add(var.set_temperature_sensor(sens))
 
     cg.add(var.set_address(config[CONF_ADDRESS]))
