@@ -83,7 +83,6 @@ async def to_code(config):
                     type=config[CONF_MOISTURE_CONTENT][CONF_ID].type
             )
             custom_conf["name"] = config[CONF_MOISTURE_CONTENT]["name"] + "_" + str(idx)
-            print(custom_conf)
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_mc_sensor(sens))
 
@@ -99,7 +98,6 @@ async def to_code(config):
                     type=config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_ID].type
             )
             custom_conf["name"] = config[CONF_EQUIVALENT_MOISTURE_CONTENT]["name"] + "_" + str(idx)
-            print(custom_conf)
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_emc_sensor(sens))
 
@@ -115,7 +113,6 @@ async def to_code(config):
                     type=config[CONF_TEMPERATURE][CONF_ID].type
             )
             custom_conf["name"] = config[CONF_TEMPERATURE]["name"] + "_" + str(idx)
-            print(custom_conf)
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_temperature_sensor(sens))
 
