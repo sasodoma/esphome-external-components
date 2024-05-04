@@ -68,7 +68,7 @@ async def to_code(config):
     for idx in range(0, config["num_probes"]):
         sens = await sensor.new_sensor({
             CONF_ID: ID(id="temp" + str(idx), is_declaration=True, is_manual=True, type="sensor::Sensor"),
-            'name': 'id="temp" + str(idx)',
+            'name': "temp" + str(idx),
             'disabled_by_default': False,
             'force_update': False,
             'unit_of_measurement': '°C',
