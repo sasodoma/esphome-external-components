@@ -1,5 +1,6 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
+from esphome.core import ID
 from esphome.components import uart, sensor
 from esphome.const import (
     CONF_ID,
@@ -61,13 +62,19 @@ async def to_code(config):
         cg.add(var.set_mc_sensor(sens))
 
     if CONF_EQUIVALENT_MOISTURE_CONTENT in config:
-        raise Exception(str(config[CONF_EQUIVALENT_MOISTURE_CONTENT]))
         sens = await sensor.new_sensor(config[CONF_EQUIVALENT_MOISTURE_CONTENT])
         cg.add(var.set_emc_sensor(sens))
 
     for idx in range(0, config["num_probes"]):
         sens = await sensor.new_sensor({
-            CONF_ID: "temp" + str(idx)
+            CONF_ID: ID(id="temp" + str(idx), is_declaration=True, is_manual=True, type="sensor::Sensor"),
+            'name': 'id="temp" + str(idx)',
+            'disabled_by_default': False,
+            'force_update': False,
+            'unit_of_measurement': '°C',
+            'accuracy_decimals': 1,
+            'device_class': 'temperature',
+            'state_class': 'measurement'
         })
         cg.add(var.set_temperature_sensor(sens))
 
