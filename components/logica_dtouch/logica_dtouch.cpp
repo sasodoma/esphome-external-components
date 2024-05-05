@@ -35,6 +35,16 @@ uint16_t dtouch_crc(const uint8_t byte) { return dtouch_crc(&byte, 1, 0xFFFF); }
 void LOGICA_dTouch::setup() {}
 
 void LOGICA_dTouch::loop() {
+  // Run the update loop
+  if (update_interval_ == UINT32_MAX)
+    return;
+  static uint32_t last_update = 0;
+  uint32_t time = millis();
+  if (time - last_update > this->update_interval_) {
+    this->update();
+    last_update = time;
+  }
+  
   static uint8_t response[DTOUCH_MAX_RESPONSE_LENGTH];
 
   size_t received_length = this->dtouch_receive_packet_(response, DTOUCH_MAX_RESPONSE_LENGTH);
@@ -59,16 +69,6 @@ void LOGICA_dTouch::loop() {
       break;
     default:
       break;
-  }
-
-  // Run the update loop
-  if (update_interval_ == UINT32_MAX)
-    return;
-  static uint32_t last_update = 0;
-  uint32_t time = millis();
-  if (time - last_update > this->update_interval_) {
-    this->update();
-    last_update = time;
   }
 }
 
