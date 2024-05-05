@@ -18,7 +18,7 @@ from esphome.const import (
 )
 
 CONF_MOISTURE_CONTENT = "moisture_content"
-CONF_EQUIVALENT_MOISTURE_CONTENT = "equivalent_moisture_content"
+CONF_EQUILIBRIUM_MOISTURE_CONTENT = "equilibrium_moisture_content"
 CONF_HEATING_LEVEL = "heating_level"
 CONF_FANS_LEVEL = "fans_level"
 CONF_FLAPS_LEVEL = "flaps_level"
@@ -55,7 +55,7 @@ CONFIG_SCHEMA = (
                 cv.Required(CONF_NUM_PROBES): cv.int_range(min=0),
                 cv.Optional(CONF_FINAL_SENSOR, default=False): cv.boolean,
             })),
-            cv.Optional(CONF_EQUIVALENT_MOISTURE_CONTENT): sensor.sensor_schema(
+            cv.Optional(CONF_EQUILIBRIUM_MOISTURE_CONTENT): sensor.sensor_schema(
                 unit_of_measurement=UNIT_PERCENT,
                 accuracy_decimals=1,
                 device_class=DEVICE_CLASS_MOISTURE,
@@ -122,32 +122,32 @@ async def to_code(config):
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_mc_sensor_final(sens))
 
-    if CONF_EQUIVALENT_MOISTURE_CONTENT in config:
-        sens = await sensor.new_sensor(config[CONF_EQUIVALENT_MOISTURE_CONTENT])
+    if CONF_EQUILIBRIUM_MOISTURE_CONTENT in config:
+        sens = await sensor.new_sensor(config[CONF_EQUILIBRIUM_MOISTURE_CONTENT])
         cg.add(var.set_emc_sensor(sens))
         cg.add(var.add_command())
         
-        for idx in range(0, config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_NUM_PROBES]):
-            custom_conf = config[CONF_EQUIVALENT_MOISTURE_CONTENT].copy()
+        for idx in range(0, config[CONF_EQUILIBRIUM_MOISTURE_CONTENT][CONF_NUM_PROBES]):
+            custom_conf = config[CONF_EQUILIBRIUM_MOISTURE_CONTENT].copy()
             custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
             custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_probe_" + str(idx+1)
-            custom_conf["name"] = config[CONF_EQUIVALENT_MOISTURE_CONTENT]["name"] + "_probe_" + str(idx+1)
+            custom_conf["name"] = config[CONF_EQUILIBRIUM_MOISTURE_CONTENT]["name"] + "_probe_" + str(idx+1)
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.add_emc_probe(sens))
         
-        if config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_IDEAL_SENSOR]:
-            custom_conf = config[CONF_EQUIVALENT_MOISTURE_CONTENT].copy()
+        if config[CONF_EQUILIBRIUM_MOISTURE_CONTENT][CONF_IDEAL_SENSOR]:
+            custom_conf = config[CONF_EQUILIBRIUM_MOISTURE_CONTENT].copy()
             custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
             custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_ideal"
-            custom_conf["name"] = config[CONF_EQUIVALENT_MOISTURE_CONTENT]["name"] + "_ideal"
+            custom_conf["name"] = config[CONF_EQUILIBRIUM_MOISTURE_CONTENT]["name"] + "_ideal"
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_emc_sensor_ideal(sens))
         
-        if config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_FINAL_SENSOR]:
-            custom_conf = config[CONF_EQUIVALENT_MOISTURE_CONTENT].copy()
+        if config[CONF_EQUILIBRIUM_MOISTURE_CONTENT][CONF_FINAL_SENSOR]:
+            custom_conf = config[CONF_EQUILIBRIUM_MOISTURE_CONTENT].copy()
             custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
             custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_final"
-            custom_conf["name"] = config[CONF_EQUIVALENT_MOISTURE_CONTENT]["name"] + "_final"
+            custom_conf["name"] = config[CONF_EQUILIBRIUM_MOISTURE_CONTENT]["name"] + "_final"
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_emc_sensor_final(sens))
 
@@ -199,8 +199,8 @@ async def to_code(config):
         config[CONF_TEMPERATURE][CONF_IDEAL_SENSOR] or
         config[CONF_TEMPERATURE][CONF_FINAL_SENSOR] or
         config[CONF_MOISTURE_CONTENT][CONF_FINAL_SENSOR] or
-        config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_IDEAL_SENSOR] or
-        config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_FINAL_SENSOR] or
+        config[CONF_EQUILIBRIUM_MOISTURE_CONTENT][CONF_IDEAL_SENSOR] or
+        config[CONF_EQUILIBRIUM_MOISTURE_CONTENT][CONF_FINAL_SENSOR] or
         CONF_HEATING_LEVEL in config or
         CONF_FANS_LEVEL in config or
         CONF_FLAPS_LEVEL in config or
