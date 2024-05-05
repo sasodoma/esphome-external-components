@@ -194,7 +194,7 @@ void LOGICA_dTouch::dump_config() {
   ESP_LOGCONFIG(TAG, "MC probes: %d", this->mc_probes_.size());
   LOG_SENSOR("  ", "EMC", this->emc_sensor_);
   ESP_LOGCONFIG(TAG, "EMC probes: %d", this->emc_probes_.size());
-  ESP_LOGCONFIG(TAG, "Sending %d command(s), one every %d ms", this->command_num_, this->update_interval_);
+  ESP_LOGCONFIG(TAG, "Sending %d command(s), one every %u ms", this->command_num_, this->update_interval_);
   this->check_uart_settings(57600, 1, uart::UART_CONFIG_PARITY_EVEN, 8);
 
   ESP_LOGCONFIG(TAG, "Device address: %d", this->address_);

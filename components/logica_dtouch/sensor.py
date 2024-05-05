@@ -100,3 +100,4 @@ async def to_code(config):
             cg.add(var.add_temperature_probe(sens))
 
     cg.add(var.set_address(config[CONF_ADDRESS]))
+    cg.add(var.set_update_interval(config[CONF_UPDATE_INTERVAL]))
