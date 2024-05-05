@@ -70,8 +70,8 @@ async def to_code(config):
         for idx in range(0, config[CONF_MOISTURE_CONTENT][CONF_NUM_PROBES]):
             custom_conf = config[CONF_MOISTURE_CONTENT].copy()
             custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
-            custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_" + str(idx)
-            custom_conf["name"] = config[CONF_MOISTURE_CONTENT]["name"] + "_" + str(idx)
+            custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_" + str(idx+1)
+            custom_conf["name"] = config[CONF_MOISTURE_CONTENT]["name"] + "_" + str(idx+1)
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_mc_sensor(sens))
 
@@ -81,8 +81,8 @@ async def to_code(config):
         for idx in range(0, config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_NUM_PROBES]):
             custom_conf = config[CONF_EQUIVALENT_MOISTURE_CONTENT].copy()
             custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
-            custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_" + str(idx)
-            custom_conf["name"] = config[CONF_EQUIVALENT_MOISTURE_CONTENT]["name"] + "_" + str(idx)
+            custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_" + str(idx+1)
+            custom_conf["name"] = config[CONF_EQUIVALENT_MOISTURE_CONTENT]["name"] + "_" + str(idx+1)
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_emc_sensor(sens))
 
@@ -92,8 +92,8 @@ async def to_code(config):
         for idx in range(0, config[CONF_TEMPERATURE][CONF_NUM_PROBES]):
             custom_conf = config[CONF_TEMPERATURE].copy()
             custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
-            custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_" + str(idx)
-            custom_conf["name"] = config[CONF_TEMPERATURE]["name"] + "_" + str(idx)
+            custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_" + str(idx+1)
+            custom_conf["name"] = config[CONF_TEMPERATURE]["name"] + "_" + str(idx+1)
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_temperature_sensor(sens))
 
