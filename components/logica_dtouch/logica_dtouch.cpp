@@ -20,21 +20,21 @@ enum SUPPORTED_COMMMANDS {
 
 // The CRC used is CRC-16/MODBUS, sent low byte first
 uint16_t dtouch_crc(const uint8_t *bytes, size_t len, uint16_t crc) {
-    uint8_t i, j;
+  uint8_t i, j;
 
-    for (i = 0; i < len; i++) {
-        crc ^= bytes[i];
-        for (j = 0; j < 8; j++) {
-            if (crc & 0x0001) {
-                crc >>= 1;
-                crc ^= 0xA001;
-            } else {
-                crc >>= 1;
-            }
-        }
-    }
+  for (i = 0; i < len; i++) {
+      crc ^= bytes[i];
+      for (j = 0; j < 8; j++) {
+          if (crc & 0x0001) {
+              crc >>= 1;
+              crc ^= 0xA001;
+          } else {
+              crc >>= 1;
+          }
+      }
+  }
 
-    return crc;
+  return crc;
 }
 uint16_t dtouch_crc(const uint8_t byte, uint16_t crc) { return dtouch_crc(&byte, 1, crc); }
 uint16_t dtouch_crc(const uint8_t *bytes, size_t len) { return dtouch_crc(bytes, len, 0xFFFF); }
