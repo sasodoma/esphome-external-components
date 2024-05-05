@@ -44,7 +44,7 @@ void LOGICA_dTouch::loop() {
     this->update();
     last_update = time;
   }
-  
+
   static uint8_t response[DTOUCH_MAX_RESPONSE_LENGTH];
 
   size_t received_length = this->dtouch_receive_packet_(response, DTOUCH_MAX_RESPONSE_LENGTH);
@@ -189,15 +189,18 @@ float LOGICA_dTouch::get_setup_priority() const { return setup_priority::DATA; }
 void LOGICA_dTouch::dump_config() {
   ESP_LOGCONFIG(TAG, "Logica dTouch:");
   LOG_SENSOR("  ", "Temperautre", this->temperature_sensor_);
-  ESP_LOGCONFIG(TAG, "Temperature probes: %d", this->temperature_probes_.size());
+  if (this->temperature_probes_.size())
+    ESP_LOGCONFIG(TAG, "    Temperature probes: %d", this->temperature_probes_.size());
   LOG_SENSOR("  ", "MC", this->mc_sensor_);
-  ESP_LOGCONFIG(TAG, "MC probes: %d", this->mc_probes_.size());
+  if (this->mc_probes_.size())
+    ESP_LOGCONFIG(TAG, "    MC probes: %d", this->mc_probes_.size());
   LOG_SENSOR("  ", "EMC", this->emc_sensor_);
-  ESP_LOGCONFIG(TAG, "EMC probes: %d", this->emc_probes_.size());
-  ESP_LOGCONFIG(TAG, "Sending %d command(s), one every %u ms", this->command_num_, this->update_interval_);
+  if (this->emc_probes_.size())
+    ESP_LOGCONFIG(TAG, "    EMC probes: %d", this->emc_probes_.size());
+  ESP_LOGCONFIG(TAG, "  Sending %d command(s), one every %u ms", this->command_num_, this->update_interval_);
   this->check_uart_settings(57600, 1, uart::UART_CONFIG_PARITY_EVEN, 8);
 
-  ESP_LOGCONFIG(TAG, "Device address: %d", this->address_);
+  ESP_LOGCONFIG(TAG, "  Device address: %d", this->address_);
 }
 
 }  // namespace logica_dtouch
