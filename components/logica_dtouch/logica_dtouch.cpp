@@ -15,7 +15,8 @@ static const uint8_t DTOUCH_STATIC_HEADER[] = { 0x80, 0x00, 0x00 };
 enum SUPPORTED_COMMMANDS {
   COMMAND_MC,
   COMMAND_EMC,
-  COMMAND_TEMPERATURE
+  COMMAND_TEMPERATURE,
+  COMMAND_CONTROL_VALUES
 };
 
 // The CRC used is CRC-16/MODBUS, sent low byte first
@@ -41,7 +42,19 @@ uint16_t dtouch_crc(const uint8_t *bytes, size_t len) { return dtouch_crc(bytes,
 uint16_t dtouch_crc(const uint8_t byte) { return dtouch_crc(&byte, 1, 0xFFFF); }
 
 
-void LOGICA_dTouch::setup() {}
+void LOGICA_dTouch::setup() {
+  this->use_command_control_values_ = (
+    this->temperature_sensor_ideal_ != nullptr ||
+    this->temperature_sensor_final_ != nullptr ||
+    this->emc_sensor_ideal_ != nullptr ||
+    this->emc_sensor_final_ != nullptr ||
+    this->mc_sensor_final_ != nullptr ||
+    this->heating_sensor_ != nullptr ||
+    this->fans_sensor_ != nullptr ||
+    this->flaps_sensor_ != nullptr ||
+    this->sprayer_sensor_ != nullptr
+  );
+}
 
 void LOGICA_dTouch::loop() {
   // Run the update loop
@@ -76,14 +89,17 @@ void LOGICA_dTouch::loop() {
     case 'P':
       switch (this->last_sent_command_.data)
       {
-      case 0:
-        this->dtouch_parse_packet_P_0_(response, received_length);
+      case 0x00:
+        this->dtouch_parse_packet_P_00_(response, received_length);
         break;
-      case 2:
-        this->dtouch_parse_packet_P_2_(response, received_length);
+      case 0x02:
+        this->dtouch_parse_packet_P_02_(response, received_length);
         break;
-      case 3:
-        this->dtouch_parse_packet_P_3_(response, received_length);
+      case 0x03:
+        this->dtouch_parse_packet_P_03_(response, received_length);
+        break;
+      case 0x10:
+        this->dtouch_parse_packet_P_10_(response, received_length);
         break;
       default:
         break;
@@ -102,21 +118,28 @@ void LOGICA_dTouch::update() {
     case COMMAND_MC:
       current_command++;
       if (this->mc_sensor_ != nullptr) {
-        const uint8_t data = 0;
+        const uint8_t data = 0x00;
         dtouch_send_command_('P', &data, 1);
         break;
       }
     case COMMAND_EMC:
       current_command++;
       if (this->emc_sensor_ != nullptr) {
-        const uint8_t data = 2;
+        const uint8_t data = 0x02;
         dtouch_send_command_('P', &data, 1);
         break;
       }
     case COMMAND_TEMPERATURE:
       current_command++;
       if (this->temperature_sensor_ != nullptr) {
-        const uint8_t data = 3;
+        const uint8_t data = 0x03;
+        dtouch_send_command_('P', &data, 1);
+        break;
+      }
+    case COMMAND_CONTROL_VALUES:
+      current_command++;
+      if (this->use_command_control_values_) {
+        const uint8_t data = 0x03;
         dtouch_send_command_('P', &data, 1);
         break;
       }
@@ -192,7 +215,7 @@ size_t LOGICA_dTouch::dtouch_receive_packet_(uint8_t *response, const size_t res
   return 0;
 }
 
-void LOGICA_dTouch::dtouch_parse_packet_P_0_(const uint8_t *data, const size_t len) {
+void LOGICA_dTouch::dtouch_parse_packet_P_00_(const uint8_t *data, const size_t len) {
   size_t index = DTOUCH_HEADER_LENGTH;
   const float total_mc = ((data[index] << 8) | data[index+1]) / 10.0f;
   this->mc_sensor_->publish_state(total_mc);
@@ -205,7 +228,7 @@ void LOGICA_dTouch::dtouch_parse_packet_P_0_(const uint8_t *data, const size_t l
   }
 }
 
-void LOGICA_dTouch::dtouch_parse_packet_P_2_(const uint8_t *data, const size_t len) {
+void LOGICA_dTouch::dtouch_parse_packet_P_02_(const uint8_t *data, const size_t len) {
   size_t index = DTOUCH_HEADER_LENGTH;
   const float total_emc = ((data[index] << 8) | data[index+1]) / 10.0f;
   this->emc_sensor_->publish_state(total_emc);
@@ -218,7 +241,7 @@ void LOGICA_dTouch::dtouch_parse_packet_P_2_(const uint8_t *data, const size_t l
   }
 }
 
-void LOGICA_dTouch::dtouch_parse_packet_P_3_(const uint8_t *data, const size_t len) {
+void LOGICA_dTouch::dtouch_parse_packet_P_03_(const uint8_t *data, const size_t len) {
   size_t index = DTOUCH_HEADER_LENGTH;
   const float total_temperature = ((data[index] << 8) | data[index+1]) / 10.0f;
   this->temperature_sensor_->publish_state(total_temperature);
@@ -228,6 +251,55 @@ void LOGICA_dTouch::dtouch_parse_packet_P_3_(const uint8_t *data, const size_t l
     const float probe_temperature = (((data[index] << 8) | data[index+1]) & 0xFFF) / 10.0f;
     this->temperature_probes_.at(i)->publish_state(probe_temperature);
     index += 2;
+  }
+}
+
+void LOGICA_dTouch::dtouch_parse_packet_P_10_(const uint8_t *data, const size_t len) {
+  size_t index = DTOUCH_HEADER_LENGTH;
+  if (this->temperature_sensor_ideal_ != nullptr) {
+    const float ideal_temperature = ((data[index] << 8) | data[index+1]) / 10.0f;
+    this->temperature_sensor_ideal_->publish_state(ideal_temperature);
+  }
+  index += 2;
+  if (this->temperature_sensor_final_ != nullptr) {
+    const float final_temperature = ((data[index] << 8) | data[index+1]) / 10.0f;
+    this->temperature_sensor_final_->publish_state(final_temperature);
+  }
+  index += 2;
+  if (this->emc_sensor_ideal_ != nullptr) {
+    const float ideal_emc = ((data[index] << 8) | data[index+1]) / 10.0f;
+    this->emc_sensor_ideal_->publish_state(ideal_emc);
+  }
+  index += 2;
+  if (this->emc_sensor_final_ != nullptr) {
+    const float final_emc = ((data[index] << 8) | data[index+1]) / 10.0f;
+    this->emc_sensor_final_->publish_state(final_emc);
+  }
+  index += 2;
+  if (this->mc_sensor_final_ != nullptr) {
+    const float final_mc = ((data[index] << 8) | data[index+1]) / 10.0f;
+    this->mc_sensor_final_->publish_state(final_mc);
+  }
+  index += 2;
+  index += 2;
+  if (this->heating_sensor_ != nullptr) {
+    const float heating_level = data[index];
+    this->heating_sensor_->publish_state(heating_level);
+  }
+  index++;
+  if (this->fans_sensor_ != nullptr) {
+    const float fans_level = data[index];
+    this->fans_sensor_->publish_state(fans_level);
+  }
+  index++;
+  if (this->flaps_sensor_ != nullptr) {
+    const float flaps_level = data[index];
+    this->flaps_sensor_->publish_state(flaps_level);
+  }
+  index++;
+  if (this->sprayer_sensor_ != nullptr) {
+    const float sprayer_level = data[index];
+    this->sprayer_sensor_->publish_state(sprayer_level);
   }
 }
 
