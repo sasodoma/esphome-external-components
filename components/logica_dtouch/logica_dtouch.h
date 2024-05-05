@@ -8,14 +8,15 @@
 namespace esphome {
 namespace logica_dtouch {
 
-class LOGICA_dTouch : public PollingComponent, public uart::UARTDevice {
+class LOGICA_dTouch : public Component, public uart::UARTDevice {
  public:
   float get_setup_priority() const override;
 
   void setup() override;
   void loop() override;
-  void update() override;
   void dump_config() override;
+  // Implement our own update with custom timing
+  void update();
 
   void set_temperature_sensor(sensor::Sensor *temperature_sensor) { temperature_sensor_ = temperature_sensor; }
   void set_emc_sensor(sensor::Sensor *emc_sensor) { emc_sensor_ = emc_sensor; }
@@ -24,6 +25,8 @@ class LOGICA_dTouch : public PollingComponent, public uart::UARTDevice {
   void add_temperature_probe(sensor::Sensor *probe) { temperature_probes_.push_back(probe); }
   void add_emc_probe(sensor::Sensor *probe) { emc_probes_.push_back(probe); }
   void add_mc_probe(sensor::Sensor *probe) { mc_probes_.push_back(probe); }
+  void add_command() { command_num_++; }
+  void set_update_interval(uint32_t update_interval);
 
  protected:
   void dtouch_send_command_(const uint8_t command) { dtouch_send_command_(command, nullptr, 0); }
@@ -39,6 +42,8 @@ class LOGICA_dTouch : public PollingComponent, public uart::UARTDevice {
   std::vector<sensor::Sensor *> emc_probes_;
   std::vector<sensor::Sensor *> mc_probes_;
   uint8_t address_;
+  uint32_t update_interval_;
+  unsigned int command_num_ = 0;
 
   struct {
     uint8_t command = 0;
