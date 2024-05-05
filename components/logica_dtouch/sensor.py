@@ -1,6 +1,5 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.core import ID
 from esphome.components import uart, sensor
 from esphome.const import (
     CONF_ID,
@@ -70,12 +69,8 @@ async def to_code(config):
         cg.add(var.set_mc_sensor(sens))
         for idx in range(0, config[CONF_MOISTURE_CONTENT][CONF_NUM_PROBES]):
             custom_conf = config[CONF_MOISTURE_CONTENT].copy()
-            custom_conf[CONF_ID] = ID(
-                id=config[CONF_MOISTURE_CONTENT][CONF_ID].id + "_" + str(idx),
-                is_declaration=config[CONF_MOISTURE_CONTENT][CONF_ID].is_declaration,
-                is_manual=config[CONF_MOISTURE_CONTENT][CONF_ID].is_manual,
-                type=config[CONF_MOISTURE_CONTENT][CONF_ID].type
-            )
+            custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
+            custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_" + str(idx)
             custom_conf["name"] = config[CONF_MOISTURE_CONTENT]["name"] + "_" + str(idx)
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_mc_sensor(sens))
@@ -85,12 +80,8 @@ async def to_code(config):
         cg.add(var.set_emc_sensor(sens))
         for idx in range(0, config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_NUM_PROBES]):
             custom_conf = config[CONF_EQUIVALENT_MOISTURE_CONTENT].copy()
-            custom_conf[CONF_ID] = ID(
-                id=config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_ID].id + "_" + str(idx),
-                is_declaration=config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_ID].is_declaration,
-                is_manual=config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_ID].is_manual,
-                type=config[CONF_EQUIVALENT_MOISTURE_CONTENT][CONF_ID].type
-            )
+            custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
+            custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_" + str(idx)
             custom_conf["name"] = config[CONF_EQUIVALENT_MOISTURE_CONTENT]["name"] + "_" + str(idx)
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_emc_sensor(sens))
@@ -100,12 +91,8 @@ async def to_code(config):
         cg.add(var.set_emc_sensor(sens))
         for idx in range(0, config[CONF_TEMPERATURE][CONF_NUM_PROBES]):
             custom_conf = config[CONF_TEMPERATURE].copy()
-            custom_conf[CONF_ID] = ID(
-                id=config[CONF_TEMPERATURE][CONF_ID].id + "_" + str(idx),
-                is_declaration=config[CONF_TEMPERATURE][CONF_ID].is_declaration,
-                is_manual=config[CONF_TEMPERATURE][CONF_ID].is_manual,
-                type=config[CONF_TEMPERATURE][CONF_ID].type
-            )
+            custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
+            custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_" + str(idx)
             custom_conf["name"] = config[CONF_TEMPERATURE]["name"] + "_" + str(idx)
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_temperature_sensor(sens))
