@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/uart/uart.h"
@@ -20,6 +21,9 @@ class LOGICA_dTouch : public PollingComponent, public uart::UARTDevice {
   void set_emc_sensor(sensor::Sensor *emc_sensor) { emc_sensor_ = emc_sensor; }
   void set_mc_sensor(sensor::Sensor *mc_sensor) { mc_sensor_ = mc_sensor; }
   void set_address(uint32_t address) { address_ = address; }
+  void add_temperature_probe(sensor::Sensor *probe) { temperature_probes_.push_back(probe); }
+  void add_emc_probe(sensor::Sensor *probe) { emc_probes_.push_back(probe); }
+  void add_mc_probe(sensor::Sensor *probe) { mc_probes_.push_back(probe); }
 
  protected:
   void dtouch_send_command_(const uint8_t command) { dtouch_send_command_(command, nullptr, 0); }
@@ -31,6 +35,9 @@ class LOGICA_dTouch : public PollingComponent, public uart::UARTDevice {
   sensor::Sensor *temperature_sensor_{nullptr};
   sensor::Sensor *emc_sensor_{nullptr};
   sensor::Sensor *mc_sensor_{nullptr};
+  std::vector<sensor::Sensor *> temperature_probes_;
+  std::vector<sensor::Sensor *> emc_probes_;
+  std::vector<sensor::Sensor *> mc_probes_;
   uint8_t address_;
 
   struct {

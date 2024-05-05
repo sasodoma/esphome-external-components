@@ -73,7 +73,7 @@ async def to_code(config):
             custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_" + str(idx+1)
             custom_conf["name"] = config[CONF_MOISTURE_CONTENT]["name"] + "_" + str(idx+1)
             sens = await sensor.new_sensor(custom_conf)
-            cg.add(var.set_mc_sensor(sens))
+            cg.add(var.add_mc_probe(sens))
 
     if CONF_EQUIVALENT_MOISTURE_CONTENT in config:
         sens = await sensor.new_sensor(config[CONF_EQUIVALENT_MOISTURE_CONTENT])
@@ -84,7 +84,7 @@ async def to_code(config):
             custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_" + str(idx+1)
             custom_conf["name"] = config[CONF_EQUIVALENT_MOISTURE_CONTENT]["name"] + "_" + str(idx+1)
             sens = await sensor.new_sensor(custom_conf)
-            cg.add(var.set_emc_sensor(sens))
+            cg.add(var.add_emc_probe(sens))
 
     if CONF_TEMPERATURE in config:
         sens = await sensor.new_sensor(config[CONF_TEMPERATURE])
@@ -95,6 +95,6 @@ async def to_code(config):
             custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_" + str(idx+1)
             custom_conf["name"] = config[CONF_TEMPERATURE]["name"] + "_" + str(idx+1)
             sens = await sensor.new_sensor(custom_conf)
-            cg.add(var.set_temperature_sensor(sens))
+            cg.add(var.add_temperature_probe(sens))
 
     cg.add(var.set_address(config[CONF_ADDRESS]))
