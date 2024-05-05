@@ -72,7 +72,6 @@ void LOGICA_dTouch::loop() {
     return;
   }
 
-  ESP_LOGD(TAG, "Last sent command: %c, %d", this->last_sent_command_.command, this->last_sent_command_.data);
   switch (this->last_sent_command_.command) {
     case 'P':
       switch (this->last_sent_command_.data)
