@@ -89,7 +89,7 @@ async def to_code(config):
 
     if CONF_TEMPERATURE in config:
         sens = await sensor.new_sensor(config[CONF_TEMPERATURE])
-        cg.add(var.set_emc_sensor(sens))
+        cg.add(var.set_temperature_sensor(sens))
         cg.add(var.add_command())
         for idx in range(0, config[CONF_TEMPERATURE][CONF_NUM_PROBES]):
             custom_conf = config[CONF_TEMPERATURE].copy()
