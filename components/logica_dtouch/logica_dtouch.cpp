@@ -72,18 +72,19 @@ void LOGICA_dTouch::loop() {
     return;
   }
 
-  switch (last_sent_command_.command) {
+  ESP_LOGD(TAG, "Last sent command: %c, %d", this->last_sent_command_.command, this->last_sent_command_.data);
+  switch (this->last_sent_command_.command) {
     case 'P':
-      switch (last_sent_command_.data)
+      switch (this->last_sent_command_.data)
       {
       case 0:
-        dtouch_parse_packet_P_0_(response, received_length);
+        this->dtouch_parse_packet_P_0_(response, received_length);
         break;
       case 2:
-        dtouch_parse_packet_P_2_(response, received_length);
+        this->dtouch_parse_packet_P_2_(response, received_length);
         break;
       case 3:
-        dtouch_parse_packet_P_3_(response, received_length);
+        this->dtouch_parse_packet_P_3_(response, received_length);
         break;
       default:
         break;
