@@ -1,11 +1,14 @@
 #include "logica_dtouch.h"
 #include "esphome/core/log.h"
 
+#include <algorithm>
+
 namespace esphome {
 namespace logica_dtouch {
 
 static const char *const TAG = "logica_dtouch";
 static const size_t DTOUCH_MAX_RESPONSE_LENGTH = 128;
+static const size_t DTOUCH_HEADER_LENGTH = 6;
 static const size_t DTOUCH_STATIC_HEADER_LENGTH = 3;
 static const uint8_t DTOUCH_STATIC_HEADER[] = { 0x80, 0x00, 0x00 };
 
@@ -70,8 +73,21 @@ void LOGICA_dTouch::loop() {
   }
 
   switch (last_sent_command_.command) {
-    case 'S':
-      dtouch_parse_packet_S_(response, received_length);
+    case 'P':
+      switch (last_sent_command_.data)
+      {
+      case 0:
+        dtouch_parse_packet_P_0_(response, received_length);
+        break;
+      case 2:
+        dtouch_parse_packet_P_2_(response, received_length);
+        break;
+      case 3:
+        dtouch_parse_packet_P_3_(response, received_length);
+        break;
+      default:
+        break;
+      }
       break;
     default:
       break;
@@ -176,29 +192,43 @@ size_t LOGICA_dTouch::dtouch_receive_packet_(uint8_t *response, const size_t res
   return 0;
 }
 
-void LOGICA_dTouch::dtouch_parse_packet_S_(const uint8_t *data, const size_t len) {
-  static const size_t DTOUCH_S_RESPONSE_LENGTH = 113;
-  static const size_t DTOUCH_S_RESPONSE_TEMP_OFFSET = 77;
-  static const size_t DTOUCH_S_RESPONSE_MC_OFFSET = 73;
-  static const size_t DTOUCH_S_RESPONSE_EMC_OFFSET = 83;
-
-  if (len != DTOUCH_S_RESPONSE_LENGTH) {
-    ESP_LOGW(TAG, "Received wrong packet length");
-    return;
+void LOGICA_dTouch::dtouch_parse_packet_P_0_(const uint8_t *data, const size_t len) {
+  size_t index = DTOUCH_HEADER_LENGTH;
+  const float total_mc = ((data[index] << 8) | data[index+1]) / 10.0f;
+  this->mc_sensor_->publish_state(total_mc);
+  index += 2;
+  uint8_t num_probes = std::min(data[index++], (uint8_t) this->mc_probes_.size());
+  for (int i = 0; i < num_probes; i++) {
+    const float probe_mc = (((data[index] << 8) | data[index+1]) & 0xFFF) / 10.0f;
+    this->mc_probes_.at(i)->publish_state(probe_mc);
+    index += 2;
   }
+}
 
-  const float temp = ((data[DTOUCH_S_RESPONSE_TEMP_OFFSET] << 8) | data[DTOUCH_S_RESPONSE_TEMP_OFFSET+1]) / 10.0f;
-  const float emc = ((data[DTOUCH_S_RESPONSE_EMC_OFFSET] << 8) | data[DTOUCH_S_RESPONSE_EMC_OFFSET+1]) / 10.0f;
-  const float mc = ((data[DTOUCH_S_RESPONSE_MC_OFFSET] << 8) | data[DTOUCH_S_RESPONSE_MC_OFFSET+1]) / 10.0f;
+void LOGICA_dTouch::dtouch_parse_packet_P_2_(const uint8_t *data, const size_t len) {
+  size_t index = DTOUCH_HEADER_LENGTH;
+  const float total_emc = ((data[index] << 8) | data[index+1]) / 10.0f;
+  this->emc_sensor_->publish_state(total_emc);
+  index += 2;
+  uint8_t num_probes = std::min(data[index++], (uint8_t) this->emc_probes_.size());
+  for (int i = 0; i < num_probes; i++) {
+    const float probe_emc = (((data[index] << 8) | data[index+1]) & 0xFFF) / 10.0f;
+    this->emc_probes_.at(i)->publish_state(probe_emc);
+    index += 2;
+  }
+}
 
-
-  ESP_LOGD(TAG, "dTouch Received Temperature=%f°C, EMC=%f%%, MC=%f%%", temp, emc, mc);
-  if (this->temperature_sensor_ != nullptr)
-    this->temperature_sensor_->publish_state(temp);
-  if (this->emc_sensor_ != nullptr)
-    this->emc_sensor_->publish_state(emc);
-  if (this->mc_sensor_ != nullptr)
-    this->mc_sensor_->publish_state(mc);
+void LOGICA_dTouch::dtouch_parse_packet_P_3_(const uint8_t *data, const size_t len) {
+  size_t index = DTOUCH_HEADER_LENGTH;
+  const float total_temperature = ((data[index] << 8) | data[index+1]) / 10.0f;
+  this->temperature_sensor_->publish_state(total_temperature);
+  index += 2;
+  uint8_t num_probes = std::min(data[index++], (uint8_t) this->temperature_probes_.size());
+  for (int i = 0; i < num_probes; i++) {
+    const float probe_temperature = (((data[index] << 8) | data[index+1]) & 0xFFF) / 10.0f;
+    this->temperature_probes_.at(i)->publish_state(probe_temperature);
+    index += 2;
+  }
 }
 
 void LOGICA_dTouch::set_update_interval(uint32_t update_interval) {
