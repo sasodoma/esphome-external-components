@@ -139,7 +139,7 @@ void LOGICA_dTouch::update() {
     case COMMAND_CONTROL_VALUES:
       current_command++;
       if (this->use_command_control_values_) {
-        const uint8_t data = 0x03;
+        const uint8_t data = 0x10;
         dtouch_send_command_('P', &data, 1);
         break;
       }
