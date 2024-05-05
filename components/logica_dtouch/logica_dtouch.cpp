@@ -9,6 +9,12 @@ static const size_t DTOUCH_MAX_RESPONSE_LENGTH = 128;
 static const size_t DTOUCH_STATIC_HEADER_LENGTH = 3;
 static const uint8_t DTOUCH_STATIC_HEADER[] = { 0x80, 0x00, 0x00 };
 
+enum SUPPORTED_COMMMANDS {
+  COMMAND_MC,
+  COMMAND_EMC,
+  COMMAND_TEMPERATURE
+};
+
 // The CRC used is CRC-16/MODBUS, sent low byte first
 uint16_t dtouch_crc(const uint8_t *bytes, size_t len, uint16_t crc) {
     uint8_t i, j;
@@ -73,7 +79,32 @@ void LOGICA_dTouch::loop() {
 }
 
 void LOGICA_dTouch::update() {
-  this->dtouch_send_command_('S');
+  static unsigned int current_command = 0;
+  switch (current_command) {
+    default:
+      current_command = 0;
+    case COMMAND_MC:
+      current_command++;
+      if (this->mc_sensor_ != nullptr) {
+        const uint8_t data = 0;
+        dtouch_send_command_('P', &data, 1);
+        break;
+      }
+    case COMMAND_EMC:
+      current_command++;
+      if (this->emc_sensor_ != nullptr) {
+        const uint8_t data = 2;
+        dtouch_send_command_('P', &data, 1);
+        break;
+      }
+    case COMMAND_TEMPERATURE:
+      current_command++;
+      if (this->temperature_sensor_ != nullptr) {
+        const uint8_t data = 3;
+        dtouch_send_command_('P', &data, 1);
+        break;
+      }
+  }
 }
 
 void LOGICA_dTouch::dtouch_send_command_(const uint8_t command, const uint8_t *data, const size_t data_len) {
