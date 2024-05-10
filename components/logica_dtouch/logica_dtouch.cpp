@@ -67,6 +67,13 @@ void LOGICA_dTouch::loop() {
     last_update = time;
   }
 
+  // Send one update from the queue, if any
+  if (!this->publish_queue_.empty()) {
+    sensor_update update = this->publish_queue_.front();
+    this->publish_queue_.pop();
+    update.sensor->publish_state(update.value);
+  }
+
   // Parse incoming data
   static uint8_t response[DTOUCH_MAX_RESPONSE_LENGTH];
 
@@ -108,13 +115,6 @@ void LOGICA_dTouch::loop() {
       break;
     default:
       break;
-  }
-
-  // Send one update from the queue, if any
-  if (!this->publish_queue_.empty()) {
-    sensor_update update = this->publish_queue_.front();
-    this->publish_queue_.pop();
-    update.sensor->publish_state(update.value);
   }
 }
 
