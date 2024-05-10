@@ -2,30 +2,30 @@ import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import uart, sensor
 from esphome.const import (
+    CONF_ADDRESS,
     CONF_ID,
     CONF_NAME,
-    CONF_ADDRESS,
     CONF_TEMPERATURE,
     CONF_UPDATE_INTERVAL,
+    DEVICE_CLASS_MOISTURE,
+    DEVICE_CLASS_SPEED,
+    DEVICE_CLASS_TEMPERATURE,
+    DEVICE_CLASS_WATER,
+    DEVICE_CLASS_WIND_SPEED,
     STATE_CLASS_MEASUREMENT,
     UNIT_CELSIUS,
     UNIT_PERCENT,
-    DEVICE_CLASS_TEMPERATURE,
-    DEVICE_CLASS_MOISTURE,
-    DEVICE_CLASS_SPEED,
-    DEVICE_CLASS_WATER,
-    DEVICE_CLASS_WIND_SPEED
 )
 
-CONF_MOISTURE_CONTENT = "moisture_content"
 CONF_EQUILIBRIUM_MOISTURE_CONTENT = "equilibrium_moisture_content"
-CONF_HEATING_LEVEL = "heating_level"
 CONF_FANS_LEVEL = "fans_level"
-CONF_FLAPS_LEVEL = "flaps_level"
-CONF_SPRAYER_LEVEL = "sprayer_level"
-CONF_NUM_PROBES = "num_probes"
-CONF_IDEAL_SENSOR = "report_ideal_value"
 CONF_FINAL_SENSOR = "report_final_value"
+CONF_FLAPS_LEVEL = "flaps_level"
+CONF_HEATING_LEVEL = "heating_level"
+CONF_IDEAL_SENSOR = "report_ideal_value"
+CONF_MOISTURE_CONTENT = "moisture_content"
+CONF_NUM_PROBES = "num_probes"
+CONF_SPRAYER_LEVEL = "sprayer_level"
 
 DEPENDENCIES = ["uart"]
 
