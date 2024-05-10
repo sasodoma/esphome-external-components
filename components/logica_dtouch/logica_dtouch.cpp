@@ -67,6 +67,7 @@ void LOGICA_dTouch::loop() {
     last_update = time;
   }
 
+  // Parse incoming data
   static uint8_t response[DTOUCH_MAX_RESPONSE_LENGTH];
 
   size_t received_length = this->dtouch_receive_packet_(response, DTOUCH_MAX_RESPONSE_LENGTH);
@@ -107,6 +108,13 @@ void LOGICA_dTouch::loop() {
       break;
     default:
       break;
+  }
+
+  // Send one update from the queue, if any
+  if (!this->publish_queue_.empty()) {
+    sensor_update update = this->publish_queue_.front();
+    this->publish_queue_.pop();
+    update.sensor->publish_state(update.value);
   }
 }
 
@@ -218,12 +226,12 @@ size_t LOGICA_dTouch::dtouch_receive_packet_(uint8_t *response, const size_t res
 void LOGICA_dTouch::dtouch_parse_packet_P_00_(const uint8_t *data, const size_t len) {
   size_t index = DTOUCH_HEADER_LENGTH;
   const float total_mc = ((data[index] << 8) | data[index+1]) / 10.0f;
-  this->mc_sensor_->publish_state(total_mc);
+  this->publish_queue_.push({this->mc_sensor_, total_mc});
   index += 2;
   uint8_t num_probes = std::min(data[index++], (uint8_t) this->mc_probes_.size());
   for (int i = 0; i < num_probes; i++) {
     const float probe_mc = (((data[index] << 8) | data[index+1]) & 0xFFF) / 10.0f;
-    this->mc_probes_.at(i)->publish_state(probe_mc);
+    this->publish_queue_.push({this->mc_probes_.at(i), probe_mc});
     index += 2;
   }
 }
@@ -231,12 +239,12 @@ void LOGICA_dTouch::dtouch_parse_packet_P_00_(const uint8_t *data, const size_t 
 void LOGICA_dTouch::dtouch_parse_packet_P_02_(const uint8_t *data, const size_t len) {
   size_t index = DTOUCH_HEADER_LENGTH;
   const float total_emc = ((data[index] << 8) | data[index+1]) / 10.0f;
-  this->emc_sensor_->publish_state(total_emc);
+  this->publish_queue_.push({this->emc_sensor_, total_emc});
   index += 2;
   uint8_t num_probes = std::min(data[index++], (uint8_t) this->emc_probes_.size());
   for (int i = 0; i < num_probes; i++) {
     const float probe_emc = (((data[index] << 8) | data[index+1]) & 0xFFF) / 10.0f;
-    this->emc_probes_.at(i)->publish_state(probe_emc);
+    this->publish_queue_.push({this->emc_probes_.at(i), probe_emc});
     index += 2;
   }
 }
@@ -244,12 +252,12 @@ void LOGICA_dTouch::dtouch_parse_packet_P_02_(const uint8_t *data, const size_t 
 void LOGICA_dTouch::dtouch_parse_packet_P_03_(const uint8_t *data, const size_t len) {
   size_t index = DTOUCH_HEADER_LENGTH;
   const float total_temperature = ((data[index] << 8) | data[index+1]) / 10.0f;
-  this->temperature_sensor_->publish_state(total_temperature);
+  this->publish_queue_.push({this->temperature_sensor_, total_temperature});
   index += 2;
   uint8_t num_probes = std::min(data[index++], (uint8_t) this->temperature_probes_.size());
   for (int i = 0; i < num_probes; i++) {
     const float probe_temperature = (((data[index] << 8) | data[index+1]) & 0xFFF) / 10.0f;
-    this->temperature_probes_.at(i)->publish_state(probe_temperature);
+    this->publish_queue_.push({this->temperature_probes_.at(i), probe_temperature});
     index += 2;
   }
 }
@@ -258,48 +266,48 @@ void LOGICA_dTouch::dtouch_parse_packet_P_10_(const uint8_t *data, const size_t 
   size_t index = DTOUCH_HEADER_LENGTH;
   if (this->temperature_sensor_ideal_ != nullptr) {
     const float ideal_temperature = ((data[index] << 8) | data[index+1]) / 10.0f;
-    this->temperature_sensor_ideal_->publish_state(ideal_temperature);
+    this->publish_queue_.push({this->temperature_sensor_ideal_, ideal_temperature});
   }
   index += 2;
   if (this->temperature_sensor_final_ != nullptr) {
     const float final_temperature = ((data[index] << 8) | data[index+1]) / 10.0f;
-    this->temperature_sensor_final_->publish_state(final_temperature);
+    this->publish_queue_.push({this->temperature_sensor_final_, final_temperature});
   }
   index += 2;
   if (this->emc_sensor_ideal_ != nullptr) {
     const float ideal_emc = ((data[index] << 8) | data[index+1]) / 10.0f;
-    this->emc_sensor_ideal_->publish_state(ideal_emc);
+    this->publish_queue_.push({this->emc_sensor_ideal_, ideal_emc});
   }
   index += 2;
   if (this->emc_sensor_final_ != nullptr) {
     const float final_emc = ((data[index] << 8) | data[index+1]) / 10.0f;
-    this->emc_sensor_final_->publish_state(final_emc);
+    this->publish_queue_.push({this->emc_sensor_final_, final_emc});
   }
   index += 2;
   if (this->mc_sensor_final_ != nullptr) {
     const float final_mc = ((data[index] << 8) | data[index+1]) / 10.0f;
-    this->mc_sensor_final_->publish_state(final_mc);
+    this->publish_queue_.push({this->mc_sensor_final_, final_mc});
   }
   index += 2;
   index += 2;
   if (this->heating_sensor_ != nullptr) {
     const float heating_level = data[index];
-    this->heating_sensor_->publish_state(heating_level);
+    this->publish_queue_.push({this->heating_sensor_, heating_level});
   }
   index++;
   if (this->fans_sensor_ != nullptr) {
     const float fans_level = data[index];
-    this->fans_sensor_->publish_state(fans_level);
+    this->publish_queue_.push({this->fans_sensor_, fans_level});
   }
   index++;
   if (this->flaps_sensor_ != nullptr) {
     const float flaps_level = data[index];
-    this->flaps_sensor_->publish_state(flaps_level);
+    this->publish_queue_.push({this->flaps_sensor_, flaps_level});
   }
   index++;
   if (this->sprayer_sensor_ != nullptr) {
     const float sprayer_level = data[index];
-    this->sprayer_sensor_->publish_state(sprayer_level);
+    this->publish_queue_.push({this->sprayer_sensor_, sprayer_level});
   }
 }
 

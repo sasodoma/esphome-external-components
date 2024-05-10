@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <queue>
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/uart/uart.h"
@@ -69,6 +70,13 @@ class LOGICA_dTouch : public Component, public uart::UARTDevice {
   sensor::Sensor *fans_sensor_{nullptr};
   sensor::Sensor *flaps_sensor_{nullptr};
   sensor::Sensor *sprayer_sensor_{nullptr};
+
+  struct sensor_update {
+    sensor::Sensor *sensor;
+    float value;
+  };
+
+  std::queue<sensor_update> publish_queue_;
 
   uint8_t address_;
   uint32_t update_interval_;
