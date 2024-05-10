@@ -110,7 +110,7 @@ async def to_code(config):
             custom_conf = config[CONF_MOISTURE_CONTENT].copy()
             custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
             custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_probe_" + str(idx+1)
-            custom_conf[CONF_NAME] = config[CONF_MOISTURE_CONTENT][CONF_NAME] + "_probe_" + str(idx+1)
+            custom_conf[CONF_NAME] = config[CONF_MOISTURE_CONTENT][CONF_NAME] + " " + str(idx+1)
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.add_mc_probe(sens))
         
@@ -118,7 +118,7 @@ async def to_code(config):
             custom_conf = config[CONF_MOISTURE_CONTENT].copy()
             custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
             custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_final"
-            custom_conf[CONF_NAME] = config[CONF_MOISTURE_CONTENT][CONF_NAME] + "_final"
+            custom_conf[CONF_NAME] = config[CONF_MOISTURE_CONTENT][CONF_NAME] + " final"
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_mc_sensor_final(sens))
 
@@ -131,7 +131,7 @@ async def to_code(config):
             custom_conf = config[CONF_EQUILIBRIUM_MOISTURE_CONTENT].copy()
             custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
             custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_probe_" + str(idx+1)
-            custom_conf[CONF_NAME] = config[CONF_EQUILIBRIUM_MOISTURE_CONTENT][CONF_NAME] + "_probe_" + str(idx+1)
+            custom_conf[CONF_NAME] = config[CONF_EQUILIBRIUM_MOISTURE_CONTENT][CONF_NAME] + " " + str(idx+1)
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.add_emc_probe(sens))
         
@@ -139,7 +139,7 @@ async def to_code(config):
             custom_conf = config[CONF_EQUILIBRIUM_MOISTURE_CONTENT].copy()
             custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
             custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_ideal"
-            custom_conf[CONF_NAME] = config[CONF_EQUILIBRIUM_MOISTURE_CONTENT][CONF_NAME] + "_ideal"
+            custom_conf[CONF_NAME] = config[CONF_EQUILIBRIUM_MOISTURE_CONTENT][CONF_NAME] + " ideal"
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_emc_sensor_ideal(sens))
         
@@ -147,7 +147,7 @@ async def to_code(config):
             custom_conf = config[CONF_EQUILIBRIUM_MOISTURE_CONTENT].copy()
             custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
             custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_final"
-            custom_conf[CONF_NAME] = config[CONF_EQUILIBRIUM_MOISTURE_CONTENT][CONF_NAME] + "_final"
+            custom_conf[CONF_NAME] = config[CONF_EQUILIBRIUM_MOISTURE_CONTENT][CONF_NAME] + " final"
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_emc_sensor_final(sens))
 
@@ -159,7 +159,7 @@ async def to_code(config):
             custom_conf = config[CONF_TEMPERATURE].copy()
             custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
             custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_probe_" + str(idx+1)
-            custom_conf[CONF_NAME] = config[CONF_TEMPERATURE][CONF_NAME] + "_probe_" + str(idx+1)
+            custom_conf[CONF_NAME] = config[CONF_TEMPERATURE][CONF_NAME] + " " + str(idx+1)
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.add_temperature_probe(sens))
         
@@ -167,7 +167,7 @@ async def to_code(config):
             custom_conf = config[CONF_TEMPERATURE].copy()
             custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
             custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_ideal"
-            custom_conf[CONF_NAME] = config[CONF_TEMPERATURE][CONF_NAME] + "_ideal"
+            custom_conf[CONF_NAME] = config[CONF_TEMPERATURE][CONF_NAME] + " ideal"
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_temperature_sensor_ideal(sens))
         
@@ -175,7 +175,7 @@ async def to_code(config):
             custom_conf = config[CONF_TEMPERATURE].copy()
             custom_conf[CONF_ID] = custom_conf[CONF_ID].copy()
             custom_conf[CONF_ID].id = custom_conf[CONF_ID].id + "_final"
-            custom_conf[CONF_NAME] = config[CONF_TEMPERATURE][CONF_NAME] + "_final"
+            custom_conf[CONF_NAME] = config[CONF_TEMPERATURE][CONF_NAME] + " final"
             sens = await sensor.new_sensor(custom_conf)
             cg.add(var.set_temperature_sensor_final(sens))
 
