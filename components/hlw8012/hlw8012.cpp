@@ -21,9 +21,9 @@ void HLW8012Component::setup() {
   if (this->sensor_model_ == HLW8012_SENSOR_MODEL_BL0937) {
     reference_voltage = 1.218f;
     this->power_multiplier_ =
-        reference_voltage * reference_voltage * this->voltage_divider_ / this->current_resistor_ / 3046913.0f;
-    this->current_multiplier_ = reference_voltage / this->current_resistor_ / 189276.0f;
-    this->voltage_multiplier_ = reference_voltage * this->voltage_divider_ / 30794.0f;
+        reference_voltage * reference_voltage * this->voltage_divider_ / this->current_resistor_ / 4596355.0f;
+    this->current_multiplier_ = reference_voltage / this->current_resistor_ / 222170.0f;
+    this->voltage_multiplier_ = reference_voltage * this->voltage_divider_ / 39576.0f;
   } else {
     // HLW8012 and CSE7759 have same reference specs
     reference_voltage = 2.43f;
