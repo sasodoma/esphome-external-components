@@ -123,6 +123,7 @@ void LOGICA_dTouch::update() {
   switch (current_command) {
     default:
       current_command = 0;
+      // fall through
     case COMMAND_MC:
       current_command++;
       if (this->mc_sensor_ != nullptr) {
@@ -130,6 +131,7 @@ void LOGICA_dTouch::update() {
         dtouch_send_command_('P', &data, 1);
         break;
       }
+      // fall through
     case COMMAND_EMC:
       current_command++;
       if (this->emc_sensor_ != nullptr) {
@@ -137,6 +139,7 @@ void LOGICA_dTouch::update() {
         dtouch_send_command_('P', &data, 1);
         break;
       }
+      // fall through
     case COMMAND_TEMPERATURE:
       current_command++;
       if (this->temperature_sensor_ != nullptr) {
@@ -144,6 +147,7 @@ void LOGICA_dTouch::update() {
         dtouch_send_command_('P', &data, 1);
         break;
       }
+      // fall through
     case COMMAND_CONTROL_VALUES:
       current_command++;
       if (this->use_command_control_values_) {
@@ -151,6 +155,7 @@ void LOGICA_dTouch::update() {
         dtouch_send_command_('P', &data, 1);
         break;
       }
+      // fall through
   }
 }
 
@@ -338,7 +343,7 @@ void LOGICA_dTouch::dump_config() {
   LOG_SENSOR("  ", "EMC", this->emc_sensor_);
   if (this->emc_probes_.size())
     ESP_LOGCONFIG(TAG, "    EMC probes: %d", this->emc_probes_.size());
-  ESP_LOGCONFIG(TAG, "  Sending %d command(s), one every %u ms", this->command_num_, this->update_interval_);
+  ESP_LOGCONFIG(TAG, "  Sending %d command(s), one every %lu ms", this->command_num_, this->update_interval_);
   this->check_uart_settings(57600, 1, uart::UART_CONFIG_PARITY_EVEN, 8);
 
   ESP_LOGCONFIG(TAG, "  Device address: %d", this->address_);
