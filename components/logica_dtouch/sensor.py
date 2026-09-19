@@ -96,6 +96,16 @@ CONFIG_SCHEMA = (
     .extend(uart.UART_DEVICE_SCHEMA)
 )
 
+FINAL_VALIDATE_SCHEMA = uart.final_validate_device_schema(
+    "logica_dtouch",
+    baud_rate=57600,
+    require_rx=True,
+    require_tx=True,
+    data_bits=8,
+    parity="EVEN",
+    stop_bits=1,
+)
+
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
